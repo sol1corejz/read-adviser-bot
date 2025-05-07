@@ -1,1 +1,7 @@
+*.exe
+*.out
+*.bin
+*.so
+*.dll
+
 /file-storage
