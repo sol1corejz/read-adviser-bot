@@ -73,6 +73,28 @@ func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 
 }
 
+func (s Storage) SendAll(userName string) (page []*storage.Page, err error) {
+	defer func() { err = e.WrapIfErr("can`t send all pages", err) }()
+
+	path := filepath.Join(s.basePath, userName)
+
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(files) == 0 {
+		return nil, storage.ErrNoSavedPages
+	}
+
+	result := make([]*storage.Page, len(files))
+	for i, file := range files {
+		result[i], _ = s.decodePage(filepath.Join(path, file.Name()))
+	}
+
+	return result, nil
+}
+
 func (s Storage) Remove(p *storage.Page) error {
 	fileName, err := fileName(p)
 	if err != nil {

@@ -4,6 +4,8 @@ const msgHelp = `I can save and keep your pages. Also I can offer you them to re
 
 In order to save the page, just send me a link to it.
 
+In order to get all your saved links, just send me /all.
+
 In order to get a random page from your list, send me command /rnd
 Caution! After that, this page will be removed from your list!`
 

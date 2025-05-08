@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	AllCmd   = "/all"
 	RndCmd   = "/rnd"
 	HelpCmd  = "/help"
 	StartCmd = "/start"
@@ -32,6 +33,8 @@ func (p *Processor) doCmd(text string, chatId int, username string) error {
 		return p.sendHello(chatId)
 	case RndCmd:
 		return p.sendRandom(chatId, username)
+	case AllCmd:
+		return p.sendAll(chatId, username)
 	default:
 		return p.tg.SendMessage(chatId, msgUnknownCommand)
 	}
@@ -86,6 +89,29 @@ func (p *Processor) sendRandom(chatID int, username string) (err error) {
 	}
 
 	return p.storage.Remove(page)
+}
+
+func (p *Processor) sendAll(chatID int, username string) (err error) {
+	defer func() { err = e.WrapIfErr("can`t do command: can`t send all pages", err) }()
+
+	sendMsg := NewMessageSender(chatID, p.tg)
+
+	pages, err := p.storage.SendAll(username)
+	if err != nil && !errors.Is(err, storage.ErrNoSavedPages) {
+		return err
+	}
+
+	if errors.Is(err, storage.ErrNoSavedPages) {
+		return sendMsg(msgNoSavedPages)
+	}
+
+	for _, page := range pages {
+		if err := sendMsg(page.URL); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (p *Processor) sendHelp(chatID int) (err error) {
